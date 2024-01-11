@@ -1,0 +1,476 @@
+---
+
+---
+
+<section
+    class="relative border border-white px-32 py-20 rounded-xl w-[75%] flex flex-col justify-center items-center gap-6"
+>
+    <div class="absolute top-4 left-4 flex items-center gap-2">
+        <img
+            src="https://avatars.githubusercontent.com/alvarob27"
+            alt="Avatar perfil usuario github"
+            class="w-8 rounded-full"
+        />
+        <strong>alvarob27</strong>
+    </div>
+
+    <p id="videosCounter" class="absolute top-4 right-4 text-xl">
+        Videos: 0/20
+    </p>
+
+    <section
+        id="btnContainer"
+        class="flex justify-center items-center gap-4 mb-10"
+    >
+        <button
+            id="btnGrabar"
+            class="border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2"
+        >
+            <img src="/record.svg" alt="Icono de record" />
+            Start recording</button
+        >
+        <button
+            id="btnParar"
+            class="border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2"
+        >
+            <img src="/pause.svg" alt="Icono de pause" />
+            Pause recording
+        </button>
+        <button
+            id="btnDetener"
+            class="border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2"
+        >
+            <img src="/stop.svg" alt="Icono de stop" />
+            Stop recording
+        </button>
+        <button
+            id="btnGuardar"
+            class="border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2"
+        >
+            <img src="/download.svg" alt="Icono de download" />
+            Save recording
+        </button>
+    </section>
+
+    <h2 class="text-center text-3xl font-semibold pt-12">Actual video</h2>
+    <p>You can download it using the 3 dots or the save recording button</p>
+    <video
+        id="preview"
+        class="border border-white/80 rounded-xl px-2 py-2"
+        width="320"
+        height="240"
+        controls></video>
+
+    <h2 class="text-center text-3xl font-semibold pt-12">My last videos</h2>
+    <div
+        id="videoGrid"
+        class="grid grid-cols-3 gap-20 mt-5 justify-center items-center"
+    >
+        <!-- Los videos grabados se añadirán aquí -->
+    </div>
+    <div class="bg-purple-500/35 blur-3xl absolute top-0 w-full h-full -z-20">
+    </div>
+</section>
+
+<script>
+    const buttonGrabar = document.querySelector("#btnGrabar");
+    const buttonDetener = document.querySelector("#btnDetener");
+    const buttonParar = document.querySelector("#btnParar");
+    const buttonGuardar = document.querySelector("#btnGuardar");
+    const preview = document.querySelector("#preview");
+    const videoGrid = document.querySelector("#videoGrid");
+
+    // Guardar los chunks de video en un array
+    let chunks: BlobPart[] | undefined = [];
+    // Contador de videos
+    let videoCount = 0;
+    // Guardar el tiempo de inicio de la grabación
+    let startTime: number;
+    // Guardar el video en un Blob
+    let videoData: Blob | MediaSource | null = null;
+
+    // Si el botón existe, añadir el evento click
+    if (buttonGrabar) {
+        // Al hacer click en el botón
+        buttonGrabar.addEventListener("click", async () => {
+            try {
+                // Obtener el stream de la pantalla (audio del sistema)
+                const displayMediaStream =
+                    await navigator.mediaDevices.getDisplayMedia({
+                        video: { frameRate: { ideal: 30 } },
+                        audio: true,
+                    });
+
+                // Crear el MediaRecorder con el stream combinado
+                const mediarecorder = new MediaRecorder(displayMediaStream, {
+                    mimeType: "video/webm;codecs=vp8,opus",
+                });
+                // Empezar a grabar
+                mediarecorder.start();
+
+                // Guardar el tiempo de inicio de la grabación
+                startTime = Date.now();
+
+                // Cuando haya datos disponibles, guardarlos en el array
+                mediarecorder.addEventListener("dataavailable", (e) => {
+                    // Si hay chunks, añadir el nuevo chunk
+                    if (chunks) {
+                        chunks.push(e.data);
+                    }
+                    // Guardar el video en un Blob
+                    videoData = e.data;
+                });
+
+                // Cuando se detenga la grabación, crear el video y añadirlo al grid
+                mediarecorder.addEventListener("stop", () => {
+                    // Crear el video
+                    const blob = new Blob(chunks, { type: "video/webm" });
+                    // Crear la URL del video
+                    const url = URL.createObjectURL(blob);
+
+                    // Obtenemos el video del preview y le añadimos la URL
+                    if (preview) {
+                        const preview = document.querySelector(
+                            "#preview",
+                        ) as HTMLVideoElement;
+                        preview.src = url;
+                    }
+                    // Si el grid existe y no hay más de 20 videos, añadir el nuevo video
+                    if (videoGrid && videoCount < 20) {
+                        // Crear y añadir el elemento de video al grid
+                        const videoElement = document.createElement("video");
+
+                        // Añadir el src del video
+                        videoElement.src = url;
+                        // Añadir los controles
+                        videoElement.controls = true;
+                        // Mutear el video
+                        videoElement.muted = true;
+                        // Creo un uuid propio de cada video
+                        let uuid = (Date.now() + Math.random()).toString();
+                        // Asignar el uuid al videoElement
+                        videoElement.id = uuid;
+
+                        // Crear y añadir el elemento de fecha al grid
+                        const dateElement = document.createElement("p");
+                        // Añadir la fecha actual
+                        dateElement.textContent = new Date().toLocaleString();
+                        // Añadir la clase
+                        dateElement.className = "text-center pt-2 text-lg";
+
+                        // Crear y añadir el elemento de duración al grid
+                        const durationElement = document.createElement("p");
+                        // Calcular la duración
+                        const duration = Math.round(
+                            (Date.now() - startTime) / 1000,
+                        );
+
+                        // Formatear la duración en horas, minutos y segundos
+                        const durationFormatted = formatDuration(duration);
+                        durationElement.textContent = `Duración: ${durationFormatted}`;
+                        durationElement.className =
+                            "text-center pt-1 text-base";
+
+                        // Crear el botón de eliminar
+                        const deleteButton = document.createElement("button");
+                        deleteButton.textContent = "Eliminar";
+                        deleteButton.className =
+                            "border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2 m-auto mt-2 mb-2";
+
+                        // Añadir el manejador de eventos para el clic en el botón de eliminar
+                        deleteButton.addEventListener("click", async () => {
+                            // Obtener los videos de IndexedDB
+                            let videos = await getVideos();
+
+                            // Encontrar el video que coincide con el id del videoElement
+                            const video = (videos as Array<any>).find(
+                                (v) => v.id === videoElement.id,
+                            );
+
+                            // Si no se encuentra el video, no hacer nada
+                            if (!video) {
+                                return;
+                            }
+
+                            // Si se encuentra el video, eliminarlo de IndexedDB
+                            await deleteVideo(video.id);
+
+                            // Eliminar el contenedor del grid
+                            container.remove();
+
+                            // Actualizar el contador de videos
+                            videoCount--;
+                            // Actualizar el contador de videos en el DOM
+                            const videosCounter =
+                                document.querySelector("#videosCounter");
+                            if (videosCounter) {
+                                videosCounter.textContent = `Videos: ${videoCount}/20`;
+                            }
+                        });
+
+                        // Crear un contenedor para el video, la fecha, la duración y el botón de eliminar
+                        const container = document.createElement("div");
+                        container.appendChild(videoElement);
+                        container.appendChild(dateElement);
+                        container.appendChild(durationElement);
+                        container.appendChild(deleteButton);
+                        container.className =
+                            "border border-white rounded-xl p-2";
+
+                        // Añadir el contenedor al grid de videos
+                        videoGrid.prepend(container);
+                        // Incrementar el contador de videos
+                        videoCount++;
+                        // Actualizar el contador de videos en el DOM
+                        const videosCounter =
+                            document.querySelector("#videosCounter");
+                        if (videosCounter) {
+                            videosCounter.textContent = `Videos: ${videoCount}/20`;
+                        }
+
+                        // Convierto el Blob en base64 y lo guardo en localStorage
+                        // Creo un FileReader para leer el Blob
+                        const reader = new FileReader();
+                        reader.readAsDataURL(blob);
+                        // Cuando termine de leer el Blob, guardo el resultado en localStorage
+                        reader.onloadend = async function () {
+                            // El resultado es un base64
+                            const base64data = reader.result;
+                            // Obtengo los videos guardados en localStorage
+                            let videos = JSON.parse(
+                                localStorage.getItem("videos") || "[]",
+                            );
+                            const duration = formatDuration(
+                                Math.round((Date.now() - startTime) / 1000),
+                            );
+
+                            // Crear un objeto con el id, el base64, la fecha y la duración
+                            const video = {
+                                id: uuid,
+                                data: base64data,
+                                date: new Date().toLocaleString(),
+                                duration: duration,
+                            };
+
+                            // Guardamos el video en IndexedDB
+                            await saveVideo(video);
+                            // Limpiar el array chunks
+                            chunks = [];
+
+                            // Detener el MediaRecorder
+                            mediarecorder.stop();
+
+                            // Revocar la URL del objeto después de usarla
+                            URL.revokeObjectURL(url);
+                        };
+                    }
+                });
+
+                if (buttonDetener) {
+                    buttonDetener.addEventListener("click", () => {
+                        // Parar la grabación
+                        mediarecorder.stop();
+                        const video = document.querySelector("#videoElement");
+                        if (video) {
+                            const videoElement = document.querySelector(
+                                "#videoElement",
+                            ) as HTMLVideoElement;
+                            // Pausar el video
+                            videoElement.pause();
+                        }
+                    });
+                }
+
+                if (buttonGuardar) {
+                    buttonGuardar.addEventListener("click", () => {
+                        if (videoData) {
+                            const link = document.createElement("a");
+                            link.href = URL.createObjectURL(videoData);
+                            link.download = `video-${Date.now()}.webm`;
+                            link.click();
+                        }
+                    });
+                } else {
+                    console.error("No se encontró el botón de guardar");
+                }
+
+                if (buttonParar) {
+                    buttonParar.addEventListener("click", () => {
+                        if (mediarecorder) {
+                            if (mediarecorder.state === "recording") {
+                                // Cambiar el texto del botón
+                                buttonParar.innerHTML =
+                                    '<img src="/play.svg" alt="Icono de play" /> Resume recording';
+                                mediarecorder.pause();
+                            } else if (mediarecorder.state === "paused") {
+                                // Cambiar el texto del botón
+                                buttonParar.innerHTML =
+                                    '<img src="/pause.svg" alt="Icono de pause" /> Pause recording';
+                                mediarecorder.resume();
+                            }
+                        }
+                    });
+                } else {
+                    console.error("No se encontró el botón de pausa");
+                }
+            } catch (error) {
+                console.error("Error al iniciar la grabación: ", error);
+            }
+        });
+    } else {
+        console.error("No se encontró el botón");
+    }
+
+    // Una vez que cargue la página recuperamos los videos de IndexedDB
+    window.addEventListener("load", async () => {
+        // Obtenemos los videos de IndexedDB
+        let videos = await getVideos();
+        // Contamos los videos
+        videoCount = (videos as Array<any>).length;
+        // Actualizamos el contador de videos
+        const videosCounter = document.querySelector("#videosCounter");
+        if (videosCounter) {
+            // Actualizar el contador de videos
+            videosCounter.textContent = `Videos: ${videoCount}/20`;
+        }
+        (videos as Array<any>).forEach(
+            (video: {
+                id: any;
+                data: RequestInfo | URL;
+                date: string | null;
+                duration: any;
+            }) => {
+                let blob = fetch(video.data)
+                    .then((res) => res.blob())
+                    .then((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const videoElement = document.createElement("video");
+                        videoElement.src = url;
+                        videoElement.controls = true;
+
+                        const dateElement = document.createElement("p");
+                        dateElement.textContent = video.date;
+                        dateElement.className = "text-center pt-2 text-lg";
+
+                        const durationElement = document.createElement("p");
+                        durationElement.textContent = `Duración: ${video.duration}`;
+                        durationElement.className =
+                            "text-center pt-1 text-base";
+
+                        const container = document.createElement("div");
+                        container.appendChild(videoElement);
+                        container.appendChild(dateElement);
+                        container.appendChild(durationElement);
+                        container.className =
+                            "border border-white rounded-xl p-2";
+
+                        if (videoGrid) {
+                            videoGrid.prepend(container);
+                        }
+                        const deleteButton = document.createElement("button");
+                        deleteButton.textContent = "Eliminar";
+                        deleteButton.className =
+                            "border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2 m-auto mt-2 mb-2";
+                        deleteButton.addEventListener("click", async () => {
+                            videos = (videos as Array<any>).filter(
+                                (v: { id: any }) => v.id !== video.id,
+                            );
+                            await deleteVideo(video.id);
+                            container.remove();
+                            videoCount--;
+                            if (videosCounter) {
+                                videosCounter.textContent = `Videos: ${videoCount}/20`;
+                            }
+                        });
+
+                        container.appendChild(deleteButton);
+                    });
+            },
+        );
+    });
+
+    // Función para convertir la duración a horas, minutos y segundos
+    function formatDuration(duration: number) {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        const seconds = duration % 60;
+        return `${hours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    }
+
+    // Abrir la base de datos de IndexedDB
+    function openDatabase() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open("myDatabase", 1);
+            request.onupgradeneeded = function () {
+                const db = request.result;
+                if (!db.objectStoreNames.contains("videos")) {
+                    db.createObjectStore("videos", { keyPath: "id" });
+                }
+            };
+            request.onsuccess = function () {
+                resolve(request.result);
+            };
+            request.onerror = function () {
+                reject(request.error);
+            };
+        });
+    }
+
+    // Guardar un video en IndexedDB
+    async function saveVideo(video: any) {
+        const db = await openDatabase();
+        const transaction = (db as IDBDatabase).transaction(
+            "videos",
+            "readwrite",
+        );
+        const videosStore = transaction.objectStore("videos");
+        const request = videosStore.put(video);
+        return new Promise((resolve, reject) => {
+            request.onsuccess = resolve;
+            request.onerror = reject;
+        });
+    }
+
+    // Obtener todos los videos de IndexedDB
+    async function getVideos() {
+        const db = await openDatabase();
+        const dbTyped = db as IDBDatabase;
+        const transaction = dbTyped.transaction("videos", "readonly");
+        const videosStore = transaction.objectStore("videos");
+        const request = videosStore.getAll();
+        return new Promise((resolve, reject) => {
+            request.onsuccess = function () {
+                resolve(request.result);
+            };
+            request.onerror = reject;
+        });
+    }
+
+    // Eliminar un video de IndexedDB
+    async function deleteVideo(id: any) {
+        const db = await openDatabase();
+        const transaction = (db as IDBDatabase).transaction(
+            "videos",
+            "readwrite",
+        );
+        const videosStore = transaction.objectStore("videos");
+        const request = videosStore.delete(id);
+        return new Promise((resolve, reject) => {
+            request.onsuccess = resolve;
+            request.onerror = reject;
+        });
+    }
+</script>
+
+<style>
+    #videoGrid video {
+        width: 75%;
+        height: auto;
+    }
+
+    button {
+        font-size: 16px;
+    }
+</style>
