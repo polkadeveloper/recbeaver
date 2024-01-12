@@ -5,21 +5,28 @@
 <section
     class="relative border border-white px-32 py-20 rounded-xl w-[75%] flex flex-col justify-center items-center gap-6"
 >
-        <img
-            src="/polkadev.png"
-            alt="Avatar perfil usuario github"
-            class="w-36 absolute top-4 left-6"
-        />
-
+    <img
+        src="/polkadev.png"
+        alt="Avatar perfil usuario github"
+        class="w-36 absolute top-4 left-6"
+    />
 
     <p id="videosCounter" class="absolute top-4 right-4 text-xl">
         Videos: 0/20
     </p>
 
-    <section
-        id="btnContainer"
-        class="flex justify-center items-center gap-4"
-    >
+    <div class="absolute top-5 flex gap-5">
+        <label class="flex gap-2">
+            <input type="checkbox" id="micCheckbox" />
+            <img id="micImg" src="/mutedMic.svg" alt="Imagen del estado del micrófono" />
+        </label>
+        <label class="flex gap-2">
+            <input type="checkbox" id="camCheckbox" />
+            <img id="camImg" src="/camDisabled.svg" alt="Imagen del estado del micrófono" />
+        </label>
+    </div>
+
+    <section id="btnContainer" class="flex justify-center items-center gap-4">
         <button
             id="btnGrabar"
             class="border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2"
@@ -77,6 +84,15 @@
     const buttonGuardar = document.querySelector("#btnGuardar");
     const preview = document.querySelector("#preview");
     const videoGrid = document.querySelector("#videoGrid");
+    // Obtén los checkboxes
+    const micCheckbox = document.querySelector(
+        "#micCheckbox",
+    ) as HTMLInputElement;
+    const camCheckbox = document.querySelector(
+        "#camCheckbox",
+    ) as HTMLInputElement;
+    const micImage = document.querySelector("#micImg") as HTMLImageElement;
+    const camImage = document.querySelector("#camImg") as HTMLImageElement;
 
     // Guardar los chunks de video en un array
     let chunks: BlobPart[] | undefined = [];
@@ -87,11 +103,39 @@
     // Guardar el video en un Blob
     let videoData: Blob | MediaSource | null = null;
 
+    // Añade un controlador de eventos 'change' al checkbox
+    micCheckbox.addEventListener("change", () => {
+        if (micCheckbox.checked) {
+            // Si el checkbox está marcado, cambia la imagen a 'activeMic.svg'
+            micImage.src = "/activeMic.svg";
+        } else {
+            // Si el checkbox no está marcado, cambia la imagen a 'inactiveMic.svg'
+            micImage.src = "/mutedMic.svg";
+        }
+    });
+
+    // Añade un controlador de eventos 'change' al checkbox
+    camCheckbox.addEventListener("change", () => {
+        if (camCheckbox.checked) {
+            // Si el checkbox está marcado, cambia la imagen a 'activeCam.svg'
+            camImage.src = "/activeCam.svg";
+        } else {
+            // Si el checkbox no está marcado, cambia la imagen a 'inactiveCam.svg'
+            camImage.src = "/camDisabled.svg";
+        }
+    });
+
     // Si el botón existe, añadir el evento click
     if (buttonGrabar) {
         // Al hacer click en el botón
         buttonGrabar.addEventListener("click", async () => {
             try {
+                // Configura las opciones de getUserMedia basado en los checkboxes
+                const constraints = {
+                    audio: micCheckbox.checked,
+                    video: camCheckbox.checked,
+                };
+
                 // Obtener el stream de la pantalla (audio del sistema)
                 const displayMediaStream =
                     await navigator.mediaDevices.getDisplayMedia({
@@ -99,10 +143,24 @@
                         audio: true,
                     });
 
+                // Si el usuario ha seleccionado el micrófono o la cámara, obtener ese stream
+                let userMediaStream;
+                if (constraints.audio || constraints.video) {
+                    userMediaStream =
+                        await navigator.mediaDevices.getUserMedia(constraints);
+                }
+
+                // Crear un nuevo stream combinado
+                const combinedStream = new MediaStream([
+                    ...displayMediaStream.getTracks(),
+                    ...(userMediaStream ? userMediaStream.getTracks() : []),
+                ]);
+
                 // Crear el MediaRecorder con el stream combinado
-                const mediarecorder = new MediaRecorder(displayMediaStream, {
+                const mediarecorder = new MediaRecorder(combinedStream, {
                     mimeType: "video/webm;codecs=vp8,opus",
                 });
+
                 // Empezar a grabar
                 mediarecorder.start();
 
@@ -121,6 +179,10 @@
 
                 // Cuando se detenga la grabación, crear el video y añadirlo al grid
                 mediarecorder.addEventListener("stop", () => {
+                    // Detener todas las pistas del stream
+                    combinedStream.getTracks().forEach((track) => {
+                        track.stop();
+                    });
                     // Crear el video
                     const blob = new Blob(chunks, { type: "video/webm" });
                     // Crear la URL del video
