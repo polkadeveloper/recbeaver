@@ -2,9 +2,21 @@
 
 ---
 
-<section class="h-[15vh] bg-gradient-to-b from-purple-700 via-purple-900 to-[#121212]">
-    <img src="/polkadev.png" alt="Logo polkadev" class="w-40">
-    <p class="text-2xl text-pretty font-semibold">MY WEB RECORDER</p>
+<section class="h-[15vh]">
+    <div class="flex justify-center items-center gap-1">
+        <p class="text-3xl text-pretty font-bold self-end pb-2 pl-6">Rec</p>
+        <img src="/recbeaver.webp" alt="Logo polkadev" class="w-32">
+        <p class="text-3xl text-pretty font-bold self-start pt-6 pr-6">Beaver</p>
+    </div>
+
+    <ul class="flex gap-6 justify-center items-center 
+    [&>li]:border [&>li]:border-white [&>li]:px-4 [&>li]:py-1 
+    [&>li]:rounded-full [&>li]:hover:cursor-pointer [&>li]:font-semibold">
+        <li class="hover:text-black hover:border-black hover:scale-110 hover:bg-purple-200 transition-all">Demo</li>
+        <li class="hover:text-black hover:border-black hover:scale-110 hover:bg-purple-200 transition-all">Docs</li>
+        <li class="hover:text-black hover:border-black hover:scale-110 hover:bg-purple-200 transition-all">Buy me a coffee</li>
+    </ul>
+    
     <ul class="flex justify-center items-center gap-4">
         <li>
             <svg

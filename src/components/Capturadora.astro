@@ -5,14 +5,12 @@
 <section
     class="relative border border-white px-32 py-20 rounded-xl w-[75%] flex flex-col justify-center items-center gap-6"
 >
-    <div class="absolute top-4 left-4 flex items-center gap-2">
         <img
-            src="https://avatars.githubusercontent.com/alvarob27"
+            src="/polkadev.png"
             alt="Avatar perfil usuario github"
-            class="w-8 rounded-full"
+            class="w-36 absolute top-4 left-6"
         />
-        <strong>alvarob27</strong>
-    </div>
+
 
     <p id="videosCounter" class="absolute top-4 right-4 text-xl">
         Videos: 0/20
@@ -20,7 +18,7 @@
 
     <section
         id="btnContainer"
-        class="flex justify-center items-center gap-4 mb-10"
+        class="flex justify-center items-center gap-4"
     >
         <button
             id="btnGrabar"
@@ -52,7 +50,7 @@
         </button>
     </section>
 
-    <h2 class="text-center text-3xl font-semibold pt-12">Actual video</h2>
+    <h2 class="text-center text-3xl font-semibold pt-6">Actual video</h2>
     <p>You can download it using the 3 dots or the save recording button</p>
     <video
         id="preview"
@@ -261,7 +259,11 @@
                             mediarecorder.stop();
 
                             // Revocar la URL del objeto después de usarla
-                            URL.revokeObjectURL(url);
+                            if (preview) {
+                                preview.addEventListener("loadeddata", () => {
+                                    URL.revokeObjectURL(url);
+                                });
+                            }
                         };
                     }
                 });
