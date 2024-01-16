@@ -3,54 +3,63 @@
 ---
 
 <section
-    class="relative border border-white px-32 py-20 rounded-xl w-[75%] flex flex-col justify-center items-center gap-6"
+    class="overflow-hidden relative border-2 border-white rounded-xl w-[90%] flex flex-col justify-center items-center gap-6 pt-28 md:pt-20 pb-20"
 >
     <img
         src="/polkadev.png"
         alt="Avatar perfil usuario github"
-        class="w-36 absolute top-4 left-6"
+        class="w-28 md:w-36 absolute top-3 md:top-4 left-4 md:left-8 cursor-pointer hover:scale-110 transition-all ease-in-out duration-300"
     />
 
-    <p id="videosCounter" class="absolute top-4 right-4 text-xl">
+    <p
+        id="videosCounter"
+        class="absolute top-4 right-4 md:right-8 text-lg md:text-xl"
+    >
         Videos: 0/20
     </p>
 
-    <div class="absolute top-5 flex gap-5">
-        <label class="flex gap-2">
+    <div class="absolute top-16 md:top-8">
+        <label
+            class="flex gap-2 bg-black border-2 border-white px-2 py-1 rounded-xl cursor-pointer hover:scale-110 transition-all ease-in-out duration-300"
+        >
             <input type="checkbox" id="micCheckbox" />
-            <img id="micImg" src="/mutedMic.svg" alt="Imagen del estado del micrófono" />
-        </label>
-        <label class="flex gap-2">
-            <input type="checkbox" id="camCheckbox" />
-            <img id="camImg" src="/camDisabled.svg" alt="Imagen del estado del micrófono" />
+            <aside class="text-lg md:text-xl">Enable microphone</aside>
+            <img
+                id="micImg"
+                src="/mutedMic.svg"
+                alt="Imagen del estado del micrófono"
+            />
         </label>
     </div>
 
-    <section id="btnContainer" class="flex justify-center items-center gap-4">
+    <section
+        id="btnContainer"
+        class="flex flex-col md:flex-row justify-center items-center gap-4 px-5 text-xs pt-5"
+    >
         <button
             id="btnGrabar"
-            class="border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2"
+            class="bg-black border-2 border-white rounded-xl px-6 py-2 justify-center items-center flex gap-2 hover:scale-110 transition-all ease-in-out duration-300"
         >
             <img src="/record.svg" alt="Icono de record" />
             Start recording</button
         >
         <button
             id="btnParar"
-            class="border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2"
+            class="bg-black border-2 border-white rounded-xl px-6 py-2 justify-center items-center flex gap-2 hover:scale-110 transition-all ease-in-out duration-300"
         >
             <img src="/pause.svg" alt="Icono de pause" />
             Pause recording
         </button>
         <button
             id="btnDetener"
-            class="border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2"
+            class="bg-black border-2 border-white rounded-xl px-6 py-2 justify-center items-center flex gap-2 hover:scale-110 transition-all ease-in-out duration-300"
         >
             <img src="/stop.svg" alt="Icono de stop" />
             Stop recording
         </button>
         <button
             id="btnGuardar"
-            class="border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2"
+            class="bg-black border-2 border-white rounded-xl px-6 py-2 justify-center items-center flex gap-2 hover:scale-110 transition-all ease-in-out duration-300"
         >
             <img src="/download.svg" alt="Icono de download" />
             Save recording
@@ -58,24 +67,32 @@
     </section>
 
     <h2 class="text-center text-3xl font-semibold pt-6">Actual video</h2>
-    <p>You can download it using the 3 dots or the save recording button</p>
+    <p class="px-10 text-left text-pretty">
+        You can download it using the 3 dots or the save recording button
+    </p>
     <video
         id="preview"
-        class="border border-white/80 rounded-xl px-2 py-2"
-        width="320"
-        height="240"
-        controls></video>
+        class="bg-black border-4 border-white rounded-xl px-2 py-2 w-[90%] md:w-[50%]"
+        controls
+        controlslist="nodownload"></video>
 
     <h2 class="text-center text-3xl font-semibold pt-12">My last videos</h2>
     <div
         id="videoGrid"
-        class="grid grid-cols-3 gap-20 mt-5 justify-center items-center"
+        class="grid grid-cols-1 md:grid-cols-3 gap-5 xl:gap-10 mt-5 justify-center items-center px-5 lg:px-5 xl:px-20"
     >
         <!-- Los videos grabados se añadirán aquí -->
     </div>
-    <div class="bg-purple-500/35 blur-3xl absolute top-0 w-full h-full -z-20">
+    <div
+        class="bg-red-700/60 blur-3xl brightness-125 contrast-100 absolute top-0 w-full h-full -z-20"
+    >
     </div>
 </section>
+<p
+    id="countdown"
+    class="overflow-hidden fixed top-0 left-0 hidden items-center justify-center text-xl md:text-8xl text-white z-50 bg-transparent backdrop-blur-3xl backdrop-opacity-75 w-full h-full"
+>
+</p>
 
 <script>
     const buttonGrabar = document.querySelector("#btnGrabar");
@@ -114,17 +131,6 @@
         }
     });
 
-    // Añade un controlador de eventos 'change' al checkbox
-    camCheckbox.addEventListener("change", () => {
-        if (camCheckbox.checked) {
-            // Si el checkbox está marcado, cambia la imagen a 'activeCam.svg'
-            camImage.src = "/activeCam.svg";
-        } else {
-            // Si el checkbox no está marcado, cambia la imagen a 'inactiveCam.svg'
-            camImage.src = "/camDisabled.svg";
-        }
-    });
-
     // Si el botón existe, añadir el evento click
     if (buttonGrabar) {
         // Al hacer click en el botón
@@ -133,7 +139,6 @@
                 // Configura las opciones de getUserMedia basado en los checkboxes
                 const constraints = {
                     audio: micCheckbox.checked,
-                    video: camCheckbox.checked,
                 };
 
                 // Obtener el stream de la pantalla (audio del sistema)
@@ -145,15 +150,25 @@
 
                 // Si el usuario ha seleccionado el micrófono o la cámara, obtener ese stream
                 let userMediaStream;
-                if (constraints.audio || constraints.video) {
-                    userMediaStream =
-                        await navigator.mediaDevices.getUserMedia(constraints);
+                if (constraints.audio) {
+                    userMediaStream = await navigator.mediaDevices.getUserMedia(
+                        {
+                            audio: {
+                                echoCancellation: true,
+                                noiseSuppression: true,
+                                autoGainControl: true,
+                                channelCount: 1,
+                                sampleRate: 48000,
+                                sampleSize: 16,
+                            },
+                        },
+                    );
                 }
 
                 // Crear un nuevo stream combinado
                 const combinedStream = new MediaStream([
                     ...displayMediaStream.getTracks(),
-                    ...(userMediaStream ? userMediaStream.getTracks() : []),
+                    ...(userMediaStream?.getTracks() || []),
                 ]);
 
                 // Crear el MediaRecorder con el stream combinado
@@ -161,6 +176,29 @@
                     mimeType: "video/webm;codecs=vp8,opus",
                 });
 
+                // Generar un retraso de 3 segundos
+                // await new Promise((resolve) => setTimeout(resolve, 3000));
+                // Mostramos un 3, 2, 1 en la pantalla
+                const countdown = document.querySelector("#countdown");
+                if (countdown) {
+                    // Deshabilitar el scroll
+                    document.body.style.overflow = "hidden";
+                    countdown.classList.remove("hidden");
+                    countdown.classList.add("flex");
+                    countdown.textContent = "3";
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    countdown.textContent = "2";
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    countdown.textContent = "1";
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    countdown.textContent = "Recording...";
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    countdown.textContent = "";
+                    countdown.classList.remove("flex");
+                    countdown.classList.add("hidden");
+                    // Habilitar el scroll
+                    document.body.style.overflow = "auto";
+                }
                 // Empezar a grabar
                 mediarecorder.start();
 
@@ -175,6 +213,17 @@
                     }
                     // Guardar el video en un Blob
                     videoData = e.data;
+                });
+
+                combinedStream.getTracks().forEach((track) => {
+                    track.onended = function () {
+                        if (
+                            mediarecorder &&
+                            mediarecorder.state === "recording"
+                        ) {
+                            mediarecorder.stop();
+                        }
+                    };
                 });
 
                 // Cuando se detenga la grabación, crear el video y añadirlo al grid
@@ -231,11 +280,27 @@
                         durationElement.className =
                             "text-center pt-1 text-base";
 
+                        // Crear el contenedor de botones
+                        const buttonsContainer = document.createElement("div");
+                        buttonsContainer.className =
+                            "flex flex-col lg:flex-row gap-5 justify-center items-center py-2";
+
                         // Crear el botón de eliminar
                         const deleteButton = document.createElement("button");
-                        deleteButton.textContent = "Eliminar";
+                        deleteButton.innerHTML =
+                            '<img src="/SolarTrashBinTrashOutline.svg" alt="Icono de delete" /> Delete';
                         deleteButton.className =
-                            "border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2 m-auto mt-2 mb-2";
+                            "bg-black border-2 border-white rounded-xl px-6 py-2 justify-center items-center flex gap-2 hover:scale-110 transition-all ease-in-out duration-300";
+
+                        // Crear el botón de descargar
+                        const downloadButton = document.createElement("a");
+                        downloadButton.innerHTML =
+                            '<img src="/download.svg" alt="Icono de download" /> Download';
+                        downloadButton.className =
+                            "bg-black border-2 border-white rounded-xl px-6 py-2 justify-center items-center flex gap-2 hover:scale-110 transition-all ease-in-out duration-300";
+                        // Añadir la url del video al botón de descargar
+                        downloadButton.href = url;
+                        downloadButton.download = `video-${Date.now()}.webm`;
 
                         // Añadir el manejador de eventos para el clic en el botón de eliminar
                         deleteButton.addEventListener("click", async () => {
@@ -268,14 +333,18 @@
                             }
                         });
 
+                        // Añadimos los botones al contenedor de botones
+                        buttonsContainer.appendChild(deleteButton);
+                        buttonsContainer.appendChild(downloadButton);
+
                         // Crear un contenedor para el video, la fecha, la duración y el botón de eliminar
                         const container = document.createElement("div");
                         container.appendChild(videoElement);
                         container.appendChild(dateElement);
                         container.appendChild(durationElement);
-                        container.appendChild(deleteButton);
+                        container.appendChild(buttonsContainer);
                         container.className =
-                            "border border-white rounded-xl p-2";
+                            "bg-black border-2 border-white rounded-xl p-2";
 
                         // Añadir el contenedor al grid de videos
                         videoGrid.prepend(container);
@@ -310,6 +379,7 @@
                                 data: base64data,
                                 date: new Date().toLocaleString(),
                                 duration: duration,
+                                url: url,
                             };
 
                             // Guardamos el video en IndexedDB
@@ -319,13 +389,6 @@
 
                             // Detener el MediaRecorder
                             mediarecorder.stop();
-
-                            // Revocar la URL del objeto después de usarla
-                            if (preview) {
-                                preview.addEventListener("loadeddata", () => {
-                                    URL.revokeObjectURL(url);
-                                });
-                            }
                         };
                     }
                 });
@@ -389,6 +452,11 @@
     window.addEventListener("load", async () => {
         // Obtenemos los videos de IndexedDB
         let videos = await getVideos();
+        // Ordenamos los videos de más nuevo a más antiguo
+        videos = videos as Array<any>;
+        (videos as Array<any>).sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        );
         // Contamos los videos
         videoCount = (videos as Array<any>).length;
         // Actualizamos el contador de videos
@@ -397,60 +465,76 @@
             // Actualizar el contador de videos
             videosCounter.textContent = `Videos: ${videoCount}/20`;
         }
-        (videos as Array<any>).forEach(
-            (video: {
-                id: any;
-                data: RequestInfo | URL;
-                date: string | null;
-                duration: any;
-            }) => {
-                let blob = fetch(video.data)
-                    .then((res) => res.blob())
-                    .then((blob) => {
-                        const url = URL.createObjectURL(blob);
-                        const videoElement = document.createElement("video");
-                        videoElement.src = url;
-                        videoElement.controls = true;
 
-                        const dateElement = document.createElement("p");
-                        dateElement.textContent = video.date;
-                        dateElement.className = "text-center pt-2 text-lg";
+        let videoPromises = (videos as Array<any>).map((video) => {
+            return fetch(video.data)
+                .then((res) => res.blob())
+                .then((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const videoElement = document.createElement("video");
+                    videoElement.src = url;
+                    videoElement.controls = true;
 
-                        const durationElement = document.createElement("p");
-                        durationElement.textContent = `Duración: ${video.duration}`;
-                        durationElement.className =
-                            "text-center pt-1 text-base";
+                    const dateElement = document.createElement("p");
+                    dateElement.textContent = video.date;
+                    dateElement.className = "text-center pt-2 text-lg";
 
-                        const container = document.createElement("div");
-                        container.appendChild(videoElement);
-                        container.appendChild(dateElement);
-                        container.appendChild(durationElement);
-                        container.className =
-                            "border border-white rounded-xl p-2";
+                    const durationElement = document.createElement("p");
+                    durationElement.textContent = `Duración: ${video.duration}`;
+                    durationElement.className = "text-center pt-1 text-base";
 
-                        if (videoGrid) {
-                            videoGrid.prepend(container);
+                    const container = document.createElement("div");
+                    container.appendChild(videoElement);
+                    container.appendChild(dateElement);
+                    container.appendChild(durationElement);
+                    container.className =
+                        "bg-black border-2 border-white rounded-xl p-2";
+
+                    const buttonsContainer = document.createElement("div");
+                    buttonsContainer.className =
+                        "flex flex-col lg:flex-row gap-2 lg:gap-5 justify-center items-center py-2";
+
+                    const deleteButton = document.createElement("button");
+                    deleteButton.innerHTML =
+                        '<img src="/SolarTrashBinTrashOutline.svg" alt="Icono de delete" /> Delete';
+                    deleteButton.className =
+                        "bg-black border-2 border-white rounded-xl px-6 py-2 justify-center items-center flex gap-2 hover:scale-110 transition-all ease-in-out duration-300";
+                    deleteButton.addEventListener("click", async () => {
+                        videos = (videos as Array<any>).filter(
+                            (v) => v.id !== video.id,
+                        );
+                        await deleteVideo(video.id);
+                        container.remove();
+                        videoCount--;
+                        if (videosCounter) {
+                            videosCounter.textContent = `Videos: ${videoCount}/20`;
                         }
-                        const deleteButton = document.createElement("button");
-                        deleteButton.textContent = "Eliminar";
-                        deleteButton.className =
-                            "border border-white/80 rounded-xl px-6 py-2 justify-center items-center flex gap-2 m-auto mt-2 mb-2";
-                        deleteButton.addEventListener("click", async () => {
-                            videos = (videos as Array<any>).filter(
-                                (v: { id: any }) => v.id !== video.id,
-                            );
-                            await deleteVideo(video.id);
-                            container.remove();
-                            videoCount--;
-                            if (videosCounter) {
-                                videosCounter.textContent = `Videos: ${videoCount}/20`;
-                            }
-                        });
-
-                        container.appendChild(deleteButton);
                     });
-            },
-        );
+
+                    const downloadButton = document.createElement("a");
+                    downloadButton.innerHTML =
+                        '<img src="/download.svg" alt="Icono de download" /> Download';
+                    downloadButton.className =
+                        "bg-black/80 border-2 border-white rounded-xl px-6 py-2 justify-center items-center flex gap-2 hover:scale-110 transition-all ease-in-out duration-300";
+                    downloadButton.href = url;
+                    downloadButton.download = `video-${Date.now()}.webm`;
+
+                    buttonsContainer.appendChild(deleteButton);
+                    buttonsContainer.appendChild(downloadButton);
+
+                    container.appendChild(buttonsContainer);
+
+                    return container;
+                });
+        });
+
+        Promise.all(videoPromises).then((containers) => {
+            containers.forEach((container: string | Node) => {
+                if (videoGrid) {
+                    videoGrid.prepend(container);
+                }
+            });
+        });
     });
 
     // Función para convertir la duración a horas, minutos y segundos
