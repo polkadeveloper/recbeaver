@@ -1,54 +1,23 @@
-# Astro Starter Kit: Basics
+# REC BEAVER
+### Grabadora de audio y video online y gratuita
+![504004af-b938-4723-a5af-8892c7c31aa0](https://github.com/polkadeveloper/recbeaver/assets/103132738/4c2958a8-923e-40ad-91f6-7a1343f7dbcd)
 
-```sh
-npm create astro@latest -- --template basics
-```
+# Características
+1. Fácil de utilizar
+2. Almacenamiento de videos
+3. Posibilidad de habilitar micrófono
+4. Posibilidad de pausar y retomar la grabación por el mismo punto
+5. Descarga gratuita de los videos en formato moderno .webm disponible
+6. Posibilidad de eliminar los videos
+7. Posibilidad de visualizar en tiempo real los videos con un preview con diferentes controles
+8. Los videos son ordenados de más nuevos a más antiguos
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+# Quieres contribuir?
+1. Realiza un fork de este repositorio
+2. Haz tus mejoras y haz una pull request con un mensaje de commit
+3. El trabajo será revisado y aceptado o denegado con su respectivo feedback
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+# Visita la web y prueba REC BEAVER
+https://recbeaver.vercel.app/
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── Card.astro
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
